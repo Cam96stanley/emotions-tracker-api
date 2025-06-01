@@ -82,3 +82,14 @@ def update_user(user_id):
     return jsonify({"error": "Database error"}), 500
 
 
+@user_bp.route("/<int:user_id>", methods=["DELETE"])
+def delete_user(user_id):
+  user = db.session.get(User, user_id)
+  
+  if not user:
+    return jsonify({"message": "User not found"}), 404
+  
+  db.session.delete(user)
+  db.session.commit()
+  
+  return jsonify({"message": f"User {user.id} deleted successfully"}), 200
