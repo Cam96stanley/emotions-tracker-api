@@ -1,0 +1,5 @@
+.env
+__pycache__/
+app/uploads/*
+!app/uploads/default_user.png
+venv/

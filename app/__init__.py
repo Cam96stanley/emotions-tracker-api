@@ -1,0 +1,18 @@
+import os
+from flask import Flask, request, send_from_directory
+from app.models import db
+from app.extensions import ma
+
+def create_app(config_name):
+  app = Flask(__name__)
+  app.config.from_object(f"config.{config_name}")
+  UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
+  os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+  
+  app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+  app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
+  
+  db.init_app(app)
+  ma.init_app(app)
+  
+  return app
