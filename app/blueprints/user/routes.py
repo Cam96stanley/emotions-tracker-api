@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from app.models import db, User
 from app.blueprints.user import user_bp
 from app.utils.auth import hash_password
-from app.blueprints.user.schemas import create_user_schema, return_user_schema
+from app.blueprints.user.schemas import create_user_schema, return_user_schema, return_users_schema, update_user_schema
 
 @user_bp.route("/", methods=["POST"])
 def create_user():
@@ -28,3 +28,57 @@ def create_user():
       return jsonify({"error": "Email already registered"}), 409
     
     return jsonify({"error": "Database error"}), 500
+
+
+@user_bp.route("/", methods=["GET"])
+def get_users():
+  query = db.session.query(User)
+  users = db.session.execute(query).scalars().all()
+  
+  if users is None:
+    return jsonify({"messages": "No users found"}), 404
+  
+  return jsonify(return_users_schema.dump(users)), 200
+
+
+@user_bp.route("/<int:user_id>", methods=["GET"])
+def get_user(user_id):
+  query = db.session.query(User).where(User.id == user_id)
+  user = db.session.execute(query).scalars().first()
+  
+  if user is None:
+    return jsonify({"message": "No user found with that id"}), 404
+  
+  return jsonify(return_user_schema.dump(user)), 200
+
+
+@user_bp.route("/<int:user_id>", methods=["PATCH"])
+def update_user(user_id):
+  user = db.session.get(User, user_id)
+  if not user:
+    return jsonify({"error": "User not found"}), 404
+  
+  data = request.json
+  
+  if "name" in data:
+    user.name = data["name"]
+  if "email" in data:
+    user.email = data["email"]
+  if "password" in data:
+    user.password = hash_password(data["password"])
+  if "image" in data:
+    user.image = data["image"]
+  if "is_admin" in data:
+    user.is_admin = data["is_admin"]
+  
+  try:
+    db.session.commit()
+    return jsonify(return_user_schema.dump(user)), 200
+  except IntegrityError:
+    db.session.rollback()
+    return jsonify({"error": "Email already in use"}), 409
+  except Exception:
+    db.session.rollback()
+    return jsonify({"error": "Database error"}), 500
+
+
