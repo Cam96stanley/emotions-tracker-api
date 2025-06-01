@@ -6,5 +6,6 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     model = User
     load_instance = True
 
-user_schema = UserSchema()
+create_user_schema = UserSchema()
+return_user_schema = UserSchema(exclude=("password", "id"))
 users_schema = UserSchema(many=True)

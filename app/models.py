@@ -25,7 +25,7 @@ class User(db.Model):
   name: Mapped[str] = mapped_column(db.String(150), nullable=False)
   email: Mapped[str] = mapped_column(db.String(150), nullable=False, unique=True)
   password: Mapped[str] = mapped_column(db.String(100), nullable=False)
-  is_admin: Mapped[bool] = mapped_column(db.Boolean, default=False)
+  is_admin: Mapped[Optional[bool]] = mapped_column(db.Boolean, default=False)
   image: Mapped[Optional[str]] = mapped_column(db.String(150), nullable=False, default="uploads/default_user.png")
   
   user_moods: Mapped[List["UserMood"]] = db.relationship(back_populates="user")
