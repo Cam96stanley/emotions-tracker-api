@@ -1,9 +1,21 @@
 import os
 from flask import Flask
+from flask_swagger_ui import get_swaggerui_blueprint
 from app.models import db
 from app.extensions import ma
 from app.blueprints.user import user_bp
 from app.utils.auth import bcrypt
+
+SWAGGER_URL = "/api/docs"
+API_URL = "/static/swagger.yaml"
+
+swaggerui_blueprint = get_swaggerui_blueprint(
+  SWAGGER_URL,
+  API_URL,
+  config = {
+    "app_name": "Emotion Tracker API"
+  }
+)
 
 def create_app(config_name):
   app = Flask(__name__)
@@ -18,6 +30,7 @@ def create_app(config_name):
   ma.init_app(app)
   bcrypt.init_app(app)
   
-  app.register_blueprint(user_bp)
+  app.register_blueprint(user_bp, url_prefix="/users")
+  app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
   
   return app
