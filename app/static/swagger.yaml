@@ -12,6 +12,12 @@ consumes:
 produces:
   - application/json
 
+securityDefinitions:
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+
 paths:
   /users/login:
     post:
@@ -249,6 +255,8 @@ paths:
       summary: Creates a new user mood entry
       description: >
         Creates a new mood entry for a user with a diary entry, sleep time, and associated feelings. Requires user ID, mood ID, sleep time, and a list of at least one feeling IDs.
+      security:
+        - Bearer: []
       parameters:
         - in: body
           name: body
@@ -270,12 +278,104 @@ paths:
                 - "One or more feeling IDs are invalid"
               mood:
                 - "Missing data for required field"
+        401:
+          description: Unauthorized - missing or invalid token
+          schema:
+            type: object
+            example:
+              message: "Token is missing or invalid"
+        403:
+          description: Forbidden - user not authorized to delete this route
+          schema:
+            type: object
+            example:
+              message: "Token is missing or invalid"
         500:
           description: Server error
           schema:
             type: object
             example:
               error: "Internal server error"
+
+    get:
+      tags:
+        - usermoods
+      summary: Get a list of all usermood entries for a user
+      description: Endpoint to retrieve a list of all usermood entries for a logged in user
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: usermood_id
+          required: true
+          type: integer
+          description: ID of usermood to delete
+      responses:
+        200:
+          description: Usermoods retrieved successfully
+          schema:
+            $ref: "#/definitions/UserMoodResponse"
+        401:
+          description: Unauthorized - missing or invalid token
+          schema:
+            type: object
+            example:
+              message: "Token is missing or invalid"
+        403:
+          description: Forbidden - user not authorized to delete this route
+          schema:
+            type: object
+            example:
+              message: "Token is missing or invalid"
+        404:
+          description: User not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "No usermood entries found"
+
+    delete:
+      tags:
+        - usermoods
+      summary: Delete a specific UserMood entry
+      description: >
+        Deletes a UserMood entry by ID if it belongs to the authenticated user.
+        Requires a valid JWT token for authentication.
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: path
+          description: ID of UserMood to delete
+          required: true
+          type: integer
+      responses:
+        200:
+          description: UserMood deleted successfully
+          schema:
+            type: object
+            example:
+              message: "UserMood deleted successfully"
+        401:
+          description: Unauthorized - missing or invalid token
+          schema:
+            type: object
+            example:
+              message: "Token is missing or invalid"
+        403:
+          description: Forbidden - user not authorized to delete this route
+          schema:
+            type: object
+            example:
+              message: "Token is missing or invalid"
+        404:
+          description: UserMood not found
+          schema:
+            type: object
+            example:
+              message: "UserMood not found"
 
 definitions:
   LoginCredentials:
