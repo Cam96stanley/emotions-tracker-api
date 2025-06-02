@@ -1,8 +1,7 @@
 from flask_bcrypt import Bcrypt
 from functools import wraps
 from jose import jwt
-import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from flask import current_app, jsonify, request
 import jose
 
@@ -17,7 +16,7 @@ def check_password(plain_password: str, hashed_password: str) -> bool:
 def generate_token(user_id):
   payload = {
     "sub": str(user_id),
-    "exp": datetime.datetime.utcnow() + timedelta(days=1)
+    "exp": datetime.now(timezone.utc) + timedelta(days=1)
   }
   
   token = jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")

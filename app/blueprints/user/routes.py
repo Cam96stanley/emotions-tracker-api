@@ -22,6 +22,7 @@ def login():
   token = generate_token(user.id)
   
   return jsonify({
+    "status": "success",
     "message": "Login successfull",
     "token": token,
     "user": {
