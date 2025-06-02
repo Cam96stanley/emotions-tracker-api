@@ -5,7 +5,7 @@ class FeelingSchema(ma.SQLAlchemyAutoSchema):
   class Meta:
     model = Feeling
     load_instance = True
-    include_fk = True
+    fields = ("id", "feeling_name")
 
 feeling_schema = FeelingSchema()
 feelings_schema = FeelingSchema(many=True)

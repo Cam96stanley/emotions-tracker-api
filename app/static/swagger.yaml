@@ -219,6 +219,35 @@ paths:
                 type: string
                 example: "User not found"
 
+  /feelings:
+    post:
+      tags:
+        - feelings
+      summary: Create a new user feeling
+      description: Creates a new feeling for a specific mood, requires a mood_type, this is a name of a feeling.
+      parameters:
+        - in: body
+          name: body
+          description: Feeling data to create a new feeling
+          required: true
+          schema:
+            $ref: "#/definitions/FeelingRequest"
+      responses:
+        201:
+          description: Feeling created successfully
+          schema:
+            $ref: "#/definitions/FeelingResponse"
+        400:
+          description: Validation error (e.g. missing or invalid fields)
+          schema:
+            $ref: "#/definitions/ValidationError"
+
+  /feelings/{feeling_id}:
+    delete:
+      tags:
+        - feelings
+      summary:
+
 definitions:
   LoginCredentials:
     type: "object"
