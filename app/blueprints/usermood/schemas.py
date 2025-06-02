@@ -29,3 +29,4 @@ class UserMoodSchema(ma.SQLAlchemyAutoSchema):
 
 usermood_schema = UserMoodSchema()
 usermoods_schema = UserMoodSchema(many=True)
+return_usermood_schema = UserMoodSchema(exclude=("mood",))

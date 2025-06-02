@@ -3,8 +3,8 @@ from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
 from app.models import db, User
 from app.blueprints.user import user_bp
-from app.utils.auth import hash_password, check_password, generate_token
-from app.blueprints.user.schemas import create_user_schema, return_user_schema, return_users_schema, update_user_schema
+from app.utils.auth import hash_password, check_password, generate_token, token_required
+from app.blueprints.user.schemas import create_user_schema, return_user_schema, return_users_schema
 
 
 @user_bp.route("/login", methods=["POST"])
@@ -79,7 +79,8 @@ def get_user(user_id):
   return jsonify(return_user_schema.dump(user)), 200
 
 
-@user_bp.route("/<int:user_id>", methods=["PATCH"])
+@user_bp.route("/", methods=["PATCH"])
+@token_required
 def update_user(user_id):
   user = db.session.get(User, user_id)
   if not user:
@@ -109,7 +110,8 @@ def update_user(user_id):
     return jsonify({"error": "Database error"}), 500
 
 
-@user_bp.route("/<int:user_id>", methods=["DELETE"])
+@user_bp.route("/", methods=["DELETE"])
+@token_required
 def delete_user(user_id):
   user = db.session.get(User, user_id)
   

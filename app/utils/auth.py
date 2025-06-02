@@ -26,12 +26,13 @@ def generate_token(user_id):
 def token_required(f):
   @wraps(f)
   def decorated(*args, **kwargs):
-    print("Decorator running")
     token = None
     
     if "Authorization" in request.headers:
-        print("Authorization header:", request.headers["Authorization"])
-        token = request.headers["Authorization"].split(" ")[1]
+      auth_header = request.headers["Authorization"]
+      parts = auth_header.split(" ")
+      if len(parts) == 2 and parts[0] == "Bearer":
+        token = parts[1]
       
     if not token:
       print("Token not found")
@@ -42,13 +43,10 @@ def token_required(f):
       user_id = data["sub"]
       
     except jose.exceptions.ExpiredSignatureError:
-      print("Token Expired")
       return jsonify({"message": "Token has expired!"}), 401
     
     except jose.exceptions.JWTError:
-      print("Token invalid")
       return jsonify({"message": "Invalid token!"}), 401
     
-    print("Token valid for user:", user_id)
     return f(user_id, *args, **kwargs)
   return decorated

@@ -2,7 +2,7 @@ from flask import request, jsonify
 from marshmallow import ValidationError
 from app.blueprints.usermood import usermood_bp
 from app.models import db, UserMood
-from app.blueprints.usermood.schemas import usermood_schema, usermoods_schema
+from app.blueprints.usermood.schemas import usermood_schema, usermoods_schema, return_usermood_schema
 from app.utils.auth import token_required
 
 @usermood_bp.route("/", methods=["POST"])
@@ -27,7 +27,7 @@ def create_usermood(user_id):
     db.session.add(usermood_data)
     db.session.commit()
     
-    return jsonify(usermood_schema.dump(usermood_data)), 201
+    return jsonify(return_usermood_schema.dump(usermood_data)), 201
   
   except ValidationError as e:
     return jsonify(e.messages), 400

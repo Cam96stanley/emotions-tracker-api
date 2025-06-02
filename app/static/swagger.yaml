@@ -125,19 +125,15 @@ paths:
             example:
               message: "No users found"
 
-  /users/{user_id}:
     patch:
       tags:
         - users
       summary: Update a user's information
       description: >
-        Allows partial updates to a user's account. Any combination of fields can be updated. Passwords will be hashed before being stored. Returns the updated user data upon success.
+        Allows partial updates to a user's account. Any combination of fields can be updated. Passwords will be hashed before being stored. Returns the updated user data upon success. A user must be logged in to access this route.
+      security:
+        - Bearer: []
       parameters:
-        - in: path
-          name: user_id
-          type: integer
-          required: true
-          description: ID of the user to updated
         - in: body
           name: body
           description: Fields to update for the user
@@ -171,11 +167,37 @@ paths:
             example:
               error: "Database error"
 
+    delete:
+      tags:
+        - users
+      summary: Delete a user
+      description: Endpooint to delete a logged in user from the database.
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: User deleted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "User 5 deleted successfully"
+        404:
+          description: User not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "User not found"
+
+  /users/{user_id}:
     get:
       tags:
         - users
       summary: Get a single user by ID
-      description: Retrieves a single user object based on the provided user ID
+      description: Retrieves a single user object based on the provided user ID.
       parameters:
         - in: path
           name: user_id
@@ -196,41 +218,13 @@ paths:
                 type: string
                 example: "No user found with that id"
 
-    delete:
-      tags:
-        - users
-      summary: Delete a user by ID
-      description: Deletes a user from the database using the provided user ID
-      parameters:
-        - in: path
-          name: user_id
-          required: true
-          type: integer
-          description: ID of the user to delete
-      responses:
-        200:
-          description: User deleted successfully
-          schema:
-            type: object
-            properties:
-              message:
-                type: string
-                example: "User 5 deleted successfully"
-        404:
-          description: User not found
-          schema:
-            type: object
-            properties:
-              message:
-                type: string
-                example: "User not found"
-
   /feelings:
     post:
       tags:
         - feelings
       summary: Create a new user feeling
-      description: Creates a new feeling for a specific mood, requires a mood_type, this is a name of a feeling.
+      description: >
+        Creates a new feeling for a specific mood, requires a mood_name. You can either set it up for users to create the feelings, or alternatively set predefined feelings for each predefined mood.
       parameters:
         - in: body
           name: body
@@ -254,7 +248,7 @@ paths:
         - usermoods
       summary: Creates a new user mood entry
       description: >
-        Creates a new mood entry for a user with a diary entry, sleep time, and associated feelings. Requires user ID, mood ID, sleep time, and a list of at least one feeling IDs.
+        Creates a new mood entry for a user with a diary entry, sleep time, and associated feelings. Requires user ID, mood ID, sleep time, and a list of at least one feeling IDs. Mood ID's are predefined and are as follows: {"id": 1, mood_type: "happy"}, {"id": 2, "mood_type": "neutral"}, {"id": 3, "moode_type": "sad"}.
       security:
         - Bearer: []
       parameters:
