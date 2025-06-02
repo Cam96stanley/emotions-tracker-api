@@ -57,14 +57,14 @@ paths:
         Creates a new user to be able to track their moods (name, email, and password are required fields). is_admin field is defaulted to false, and image has a default user image.
       required: true
       schema:
-        $ref: "#/definitions/CreateUser"
+        $ref: "#/definitions/CreateUserRequest"
       parameters:
         - in: body
           name: body
           description: Create a user
           required: true
           schema:
-            $ref: "#/definitions/CreateUser"
+            $ref: "#/definitions/CreateUserResponse"
       responses:
         201:
           description: User created successfully
@@ -231,22 +231,51 @@ paths:
           description: Feeling data to create a new feeling
           required: true
           schema:
-            $ref: "#/definitions/FeelingRequest"
+            $ref: "#/definitions/CreateFeelingRequest"
       responses:
         201:
           description: Feeling created successfully
           schema:
-            $ref: "#/definitions/FeelingResponse"
+            $ref: "#/definitions/CreateFeelingResponse"
         400:
           description: Validation error (e.g. missing or invalid fields)
           schema:
-            $ref: "#/definitions/ValidationError"
+            $ref: "#/definitions/FeelingsValidationError"
 
-  /feelings/{feeling_id}:
-    delete:
+  /usermoods:
+    post:
       tags:
-        - feelings
-      summary:
+        - usermoods
+      summary: Creates a new user mood entry
+      description: >
+        Creates a new mood entry for a user with a diary entry, sleep time, and associated feelings. Requires user ID, mood ID, sleep time, and a list of at least one feeling IDs.
+      parameters:
+        - in: body
+          name: body
+          description: User mood data to create
+          required: true
+          schema:
+            $ref: "#/definitions/UserMoodRequest"
+      responses:
+        201:
+          description: UserMood created successfully
+          schema:
+            $ref: "#/definitions/UserMoodResponse"
+        400:
+          description: Validation error (e.g. missing or invalid fields)
+          schema:
+            type: object
+            example:
+              feelings:
+                - "One or more feeling IDs are invalid"
+              mood:
+                - "Missing data for required field"
+        500:
+          description: Server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
 
 definitions:
   LoginCredentials:
@@ -286,7 +315,7 @@ definitions:
             type: boolean
             example: false
 
-  CreateUser:
+  CreateUserRequest:
     type: object
     properties:
       id:
@@ -361,16 +390,109 @@ definitions:
         type: boolean
         example: false
 
+  CreateFeelingRequest:
+    type: object
+    properties:
+      feeling_name:
+        type: string
+        example: "Excited"
+
+    required:
+      - feeling_name
+
+  CreateFeelingResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 1
+      feeling_name:
+        type: string
+        example: "Excited"
+
+  UserMoodRequest:
+    type: object
+    properties:
+      user:
+        type: integer
+        example: 2
+      mood:
+        type: integer
+        example: 3
+      diary_entry:
+        type: string
+        example: "I'm tired"
+      sleep_time:
+        type: integer
+        example: 7
+      feelings:
+        type: array
+        items:
+          type: integer
+        example: [3, 4]
+
+  UserMoodResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 6
+      user:
+        type: integer
+        example: 1
+      mood:
+        type: integer
+        example: 3
+      mood_info:
+        $ref: "#/definitions/Mood"
+      feelings_info:
+        type: array
+        items:
+          $ref: "#/definitions/Feeling"
+      diary_entry:
+        type: integer
+        example: "I'm tired"
+      sleep_time:
+        type: integer
+        example: 7
+      date:
+        type: string
+        format: date
+        example: "2025-06-02"
+
+  Mood:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 3
+      mood_type:
+        type: string
+        example: "sad"
+
+  Feeling:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 4
+      feeling_type:
+        type: string
+        example: "anxious"
+
   ValidationError:
     type: object
     description: Returned when required fields are missing or invalid
     example:
-      email:
-        - "Not a valid email address."
-      password:
-        - "Missing data for required field."
-      name:
-        - "Shorter than minimum length 3."
+      email: "Not a valid email address."
+      password: "Missing data for required field."
+      name: "Shorter than minimum length 3."
+
+  FeelingsValidationError:
+    type: object
+    description: Returned when required fields are missing or invalid
+    example:
+      feeling_name: "Invalid feeling name."
 
   ConflictError:
     type: object
