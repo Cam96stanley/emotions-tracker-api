@@ -1,8 +1,10 @@
 from flask_bcrypt import Bcrypt
+from functools import wraps
 from jose import jwt
 import datetime
 from datetime import timedelta
-from flask import current_app
+from flask import current_app, jsonify, request
+import jose
 
 bcrypt = Bcrypt()
 
@@ -20,3 +22,33 @@ def generate_token(user_id):
   
   token = jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
   return token
+
+def token_required(f):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    print("Decorator running")
+    token = None
+    
+    if "Authorization" in request.headers:
+        print("Authorization header:", request.headers["Authorization"])
+        token = request.headers["Authorization"].split(" ")[1]
+      
+    if not token:
+      print("Token not found")
+      return jsonify({"message": "Token is missing"}), 401
+    
+    try:
+      data = jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
+      user_id = data["sub"]
+      
+    except jose.exceptions.ExpiredSignatureError:
+      print("Token Expired")
+      return jsonify({"message": "Token has expired!"}), 401
+    
+    except jose.exceptions.JWTError:
+      print("Token invalid")
+      return jsonify({"message": "Invalid token!"}), 401
+    
+    print("Token valid for user:", user_id)
+    return f(user_id, *args, **kwargs)
+  return decorated
