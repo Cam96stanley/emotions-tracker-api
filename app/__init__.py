@@ -5,6 +5,7 @@ from app.models import db
 from app.extensions import ma
 from app.blueprints.user import user_bp
 from app.blueprints.feeling import feeling_bp
+from app.blueprints.usermood import usermood_bp
 from app.utils.auth import bcrypt
 
 SWAGGER_URL = "/api/docs"
@@ -33,6 +34,7 @@ def create_app(config_name):
   
   app.register_blueprint(user_bp, url_prefix="/users")
   app.register_blueprint(feeling_bp, url_prefix="/feelings")
+  app.register_blueprint(usermood_bp, url_prefix="/usermoods")
   app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
   
   return app
