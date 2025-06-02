@@ -11,5 +11,340 @@ consumes:
   - application/json
 produces:
   - application/json
-paths: {}
-definitions: {}
+
+paths:
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Login endpoint for users, generates a jwt token
+      description: Validates user credentials, generates and returns a user specific token
+      parameters:
+        - in: body
+          name: body
+          description: Login Credentials
+          required: true
+          schema:
+            $ref: "#/definitions/LoginCredentials"
+      responses:
+        200:
+          description: Login successful
+          schema:
+            $ref: "#/definitions/LoginResponse"
+        400:
+          description: Missing email or password
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Email and password are required
+        401:
+          description: Invalid email or password
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Invalid credentials
+
+  /users:
+    post:
+      tags:
+        - users
+      summary: Endpoint to create a user
+      description: >
+        Creates a new user to be able to track their moods (name, email, and password are required fields). is_admin field is defaulted to false, and image has a default user image.
+      required: true
+      schema:
+        $ref: "#/definitions/CreateUser"
+      parameters:
+        - in: body
+          name: body
+          description: Create a user
+          required: true
+          schema:
+            $ref: "#/definitions/CreateUser"
+      responses:
+        201:
+          description: User created successfully
+          schema:
+            $ref: "#/definitions/CreateUserResponse"
+        400:
+          description: Validation error (e.g. missing or invalid fields)
+          schema:
+            type: object
+            example:
+              email:
+                - "Not a valid email address"
+              password:
+                - "Missing data for required field"
+              name:
+                - "Shorter than minimum length 3"
+        409:
+          description: Email already registered
+          schema:
+            type: object
+            example:
+              error: "Email already registered"
+
+    get:
+      tags:
+        - users
+      summary: Get all users
+      description: Endpoint to retrieve a list of all users
+      responses:
+        200:
+          description: A list of users
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/UserResponse"
+          examples:
+            application/json:
+              - id: 1
+                name: "John Doe"
+                email: "john@example.com"
+                is_admin: false
+                image: "https://example.com/profile1.jpg"
+              - id: 2
+                name: "Jane Smith"
+                email: "jane@example.com"
+                is_admin: true
+                image: "https://example.com/profile2.jpg"
+        404:
+          description: No users found
+          schema:
+            type: object
+            example:
+              message: "No users found"
+
+  /users/{user_id}:
+    patch:
+      tags:
+        - users
+      summary: Update a user's information
+      description: >
+        Allows partial updates to a user's account. Any combination of fields can be updated. Passwords will be hashed before being stored. Returns the updated user data upon success.
+      parameters:
+        - in: path
+          name: user_id
+          type: integer
+          required: true
+          description: ID of the user to updated
+        - in: body
+          name: body
+          description: Fields to update for the user
+          schema:
+            $ref: "#/definitions/UserUpdateRequest"
+      responses:
+        200:
+          description: User updated successfully
+          schema:
+            $ref: "#/definitions/UserResponse"
+        400:
+          description: Bad request - invalid data
+          schema:
+            $ref: "#/definitions/ValidationError"
+        404:
+          description: User not found
+          schema:
+            type: object
+            example:
+              error: "User not found"
+        409:
+          description: Email already in use
+          schema:
+            type: object
+            example:
+              error: "Email already in use"
+        500:
+          description: Database error
+          schema:
+            type: object
+            example:
+              error: "Database error"
+
+    get:
+      tags:
+        - users
+      summary: Get a single user by ID
+      description: Retrieves a single user object based on the provided user ID
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          type: integer
+          description: ID of the user to retrieve
+      responses:
+        200:
+          description: user found and returned successfully
+          schema:
+            $ref: "#/definitions/UserResponse"
+        404:
+          description: No user found with that ID
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "No user found with that id"
+
+    delete:
+      tags:
+        - users
+      summary: Delete a user by ID
+      description: Deletes a user from the database using the provided user ID
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          type: integer
+          description: ID of the user to delete
+      responses:
+        200:
+          description: User deleted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "User 5 deleted successfully"
+        404:
+          description: User not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "User not found"
+
+definitions:
+  LoginCredentials:
+    type: "object"
+    properties:
+      email:
+        type: "string"
+      password:
+        type: "string"
+
+    required:
+      - email
+      - password
+
+  LoginResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: "Login successful"
+      token:
+        type: string
+        example: "nlkKNNniNIKNJALSKll..."
+      user:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          name:
+            type: string
+            example: "John Doe"
+          email:
+            type: string
+            example: "john@example.com"
+          is_admin:
+            type: boolean
+            example: false
+
+  CreateUser:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      is_admin:
+        type: boolean
+      image:
+        type: string
+
+    required:
+      - name
+      - email
+      - password
+
+  CreateUserResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 1
+      name:
+        type: string
+        example: "John Doe"
+      email:
+        type: string
+        example: "john@example.com"
+      is_admin:
+        type: boolean
+        example: false
+
+  UserResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 1
+      name:
+        type: string
+        example: "John Doe"
+      email:
+        type: string
+        example: "john@example.com"
+      is_admin:
+        type: boolean
+        example: false
+      image:
+        type: string
+        example: "https://example.com/profile.jpg"
+
+  UserUpdateRequest:
+    type: object
+    properties:
+      name:
+        type: string
+        example: "Jane Doe"
+      email:
+        type: string
+        example: "jane@example.com"
+      password:
+        type: string
+        example: "newsecurepassword123"
+      image:
+        type: string
+        example: "https://example.com/profile.jpg"
+      is_admin:
+        type: boolean
+        example: false
+
+  ValidationError:
+    type: object
+    description: Returned when required fields are missing or invalid
+    example:
+      email:
+        - "Not a valid email address."
+      password:
+        - "Missing data for required field."
+      name:
+        - "Shorter than minimum length 3."
+
+  ConflictError:
+    type: object
+    description: Returned when trying to register with an email that already exists
+    example:
+      error: "Email already registered"
