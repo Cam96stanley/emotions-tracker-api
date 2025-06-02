@@ -13,5 +13,5 @@ class TestingConfig:
   CACHE_TYPE = "SimpleCache"
   
 class ProductionConfig:
-  PROD_SQLALCHEMY_DATABASE_URI = os.environ.get("PROD_SQLALCHEMY_DATABASE_URI")
+  SQLALCHEMY_DATABASE_URI = os.environ.get("PROD_SQLALCHEMY_DATABASE_URI")
   CACHE_TYPE = "SimpleCache"
