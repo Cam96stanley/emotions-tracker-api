@@ -4,9 +4,9 @@ info:
   description: >
     The Emotion Tracker API allows users to register, log in, and manage their emotional entries. Each user can create mood entries that include one of three predefined moods, a list of custom feelings (created on the frontend), an optional diary entry, sleep duration, and a date. The API supports creating, reading, updating, and deleting users and mood entries. Feelings are user-generated and saved per entry through a many-to-many relationship. Authentication and user management are supported, and all data is returned in JSON format. This API is designed to integrate smoothly with frontend applications for tracking mental and emotional health.
   version: "1.0.0"
-host: 127.0.0.1:5000
+host: "emotions-tracker-api.onrender.com"
 schemes:
-  - http
+  - https
 consumes:
   - application/json
 produces:
