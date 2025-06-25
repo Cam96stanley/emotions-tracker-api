@@ -132,7 +132,7 @@ paths:
       description: >
         Allows partial updates to a user's account. Any combination of fields can be updated. Passwords will be hashed before being stored. Returns the updated user data upon success. A user must be logged in to access this route.
       security:
-        - Bearer: []
+        - BearerAuth: []
       parameters:
         - in: body
           name: body
@@ -173,7 +173,7 @@ paths:
       summary: Delete a user
       description: Endpooint to delete a logged in user from the database.
       security:
-        - Bearer: []
+        - BearerAuth: []
       responses:
         200:
           description: User deleted successfully
@@ -250,7 +250,7 @@ paths:
       description: >
         Creates a new mood entry for a user with a diary entry, sleep time, and associated feelings. Requires user ID, mood ID, sleep time, and a list of at least one feeling IDs. Mood ID's are predefined and are as follows: {"id": 1, mood_type: "happy"}, {"id": 2, "mood_type": "neutral"}, {"id": 3, "moode_type": "sad"}.
       security:
-        - Bearer: []
+        - BearerAuth: []
       parameters:
         - in: body
           name: body
@@ -297,7 +297,7 @@ paths:
       summary: Get a list of all usermood entries for a user
       description: Endpoint to retrieve a list of all usermood entries for a logged in user
       security:
-        - Bearer: []
+        - BearerAuth: []
       parameters:
         - in: path
           name: usermood_id
@@ -338,7 +338,7 @@ paths:
         Deletes a UserMood entry by ID if it belongs to the authenticated user.
         Requires a valid JWT token for authentication.
       security:
-        - Bearer: []
+        - BearerAuth: []
       parameters:
         - in: path
           name: path
