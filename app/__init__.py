@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from app.models import db
 from app.extensions import ma
@@ -21,6 +22,7 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 
 def create_app(config_name):
   app = Flask(__name__)
+  CORS(app)
   app.config.from_object(f"config.{config_name}")
   UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
   os.makedirs(UPLOAD_FOLDER, exist_ok=True)
